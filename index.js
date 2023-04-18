@@ -119,7 +119,7 @@ const getApiData = () => {
           );
           weatherInformation.temperature.push(data.list[i].main.temp);
           weatherInformation.windSpeed.push(data.list[i].wind.speed);
-          weatherInformation.precipitation.push(data.list[i].pop);
+          weatherInformation.precipitation.push(data.list[i].pop * 100);
           weatherInformation.humidity.push(data.list[i].main.humidity);
           weatherInformation.date.push(day);
           weatherInformation.imageURL.push(data.list[i].weather[0].icon);
