@@ -1,129 +1,133 @@
-const questions = [
-  {
-    Question: "What is a start?",
-    answers: [
-      { text: "Earth", correct: false },
-      { text: "Sun", correct: true },
-      { text: "Pluto", correct: false },
-      { text: "Saturn", correct: false },
-    ],
-  },
-  {
-    Question: "What is a planet?",
-    answers: [
-      { text: "Earth", correct: false },
-      { text: "Sun", correct: true },
-      { text: "Pluto", correct: false },
-      { text: "Saturn", correct: false },
-    ],
-  },
-  {
-    Question: "What is a galaxy?",
-    answers: [
-      { text: "Earth", correct: false },
-      { text: "Sun", correct: true },
-      { text: "Pluto", correct: false },
-      { text: "Milky way", correct: false },
-    ],
-  },
-  {
-    Question: "What is a comet?",
-    answers: [
-      { text: "Earth", correct: false },
-      { text: "Sun", correct: true },
-      { text: "Pluto", correct: false },
-      { text: "shooting start", correct: false },
-    ],
-  },
-  {
-    Question: "What is a black hole?",
-    answers: [
-      { text: "Earth", correct: false },
-      { text: "Sun", correct: true },
-      { text: "Pluto", correct: false },
-      { text: "A mass of gravity", correct: false },
-    ],
-  },
-];
+let latitude;
+let longitude;
+let request = new XMLHttpRequest();
 
-const questionsElement = document.getElementById("questions");
-const answerButton = document.getElementById("answers");
-const nextButton = document.getElementById("nextButton");
+const findLocation = () => {
+  const success = (position) => {
+    console.log(position.coords.latitude, position.coords.longitude);
+    latitude = position.coords.latitude;
+    longitude = position.coords.longitude;
+  };
+  const error = () => {
+    console.log("error");
+  };
+  navigator.geolocation.getCurrentPosition(success, error);
+};
+const query_params = {
+  api_key: "b792d8fba1513b1d3b9501102a39fd5a",
+  unit: "imperial",
+};
 
-let currentQuestionIndex = 0;
-let score = 0;
+const reset = (weatherInformation) => {
+  weatherInformation.weatherCondition = [];
+  weatherInformation.temperature = [];
+  weatherInformation.windSpeed = [];
+  weatherInformation.precipitation = [];
+  weatherInformation.humidity = [];
+  weatherInformation.date = [];
+  weatherInformation.imageURL = [];
+};
+const weatherInformation = {
+  location: "", // done
+  weatherCondition: [], // done
+  temperature: [], // done
+  windSpeed: [],
+  precipitation: [],
+  humidity: [], //done
+  date: [], // done
+  imageURL: [], // done
+};
+const displayWeather = (weatherInformation) => {
+  let it = 0;
+  let locations = document.querySelectorAll('*[id^="location"]');
+  let temps = document.querySelectorAll('*[id^="temperature"]');
+  let weatherConditions = document.querySelectorAll(
+    '*[id^="weatherCondition"]'
+  );
+  let windSpeed = document.querySelectorAll('*[id^="windSpeed"]');
+  let prec = document.querySelectorAll('*[id^="cop"]');
+  let humid = document.querySelectorAll('*[id^="humid"]');
+  let currDay = document.querySelectorAll('*[id^="currTime"]');
+  let imageURL = document.querySelectorAll('*[id^="imageId"]');
 
-function startQuiz() {
-  currentQuestionIndex = 0;
-  score = 0;
-  nextButton.innerHTML = "Next";
-  showQuestions();
-}
-
-function showQuestions() {
-  resetState();
-  let currentQuestion = questions[currentQuestionIndex];
-  let questionNumber = currentQuestionIndex + 1;
-  questionsElement.innerHTML = questionNumber + ". " + currentQuestion.Question;
-  currentQuestion.answers.forEach((answer) => {
-    const button = document.createElement("button");
-    button.innerHTML = answer.text;
-    button.classList.add("btn");
-    answerButton.appendChild(button);
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
-    }
-    button.addEventListener("click", selectAnswer);
-  });
-}
-function resetState() {
-  nextButton.style.display = "none";
-  while (answerButton.firstChild) {
-    answerButton.removeChild(answerButton.firstChild);
+  for (const element of locations) {
+    element.innerHTML = weatherInformation.location;
   }
-}
-
-function selectAnswer(e) {
-  const selectedButton = e.target;
-  const isCorrect = selectedButton.dataset.correct === "true";
-  if (isCorrect) {
-    selectedButton.classList.add("correct");
-    score++;
-  } else {
-    selectedButton.classList.add("inCorrect");
+  for (const element of temps) {
+    element.innerHTML = `${weatherInformation.temperature[it]}°C`;
+    it++;
   }
-  Array.from(answerButton.children).forEach((button) => {
-    if (button.dataset.correct === "true") {
-      button.classList.add("correct");
-    }
-    button.disable = true;
-  });
-  nextButton.style.display = "block";
-}
-nextButton.addEventListener("click", () => {
-  if (currentQuestionIndex < questions.length) {
-    handleNextButtonClick();
-  } else {
-    startQuiz();
+  it = 0;
+  for (const element of weatherConditions) {
+    element.innerHTML = `${weatherInformation.weatherCondition[it]}`;
+    it++;
   }
-});
-
-function showScores() {
-  resetState();
-  questionsElement.innerHTML = `Your score is ${
-    (score / questions.length) * 100
-  }`;
-  nextButton.innerHTML = "Play Again";
-  nextButton.style.display = "block";
-}
-
-function handleNextButtonClick() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    showQuestions();
-  } else {
-    showScores();
+  it = 0;
+  for (const element of windSpeed) {
+    element.innerHTML = `Wind Speed: ${weatherInformation.windSpeed[it]} km/h`;
+    it++;
   }
-}
+  it = 0;
+  for (const element of prec) {
+    element.innerHTML = `Chance of precipitation: ${weatherInformation.precipitation[it]}%`;
+    it++;
+  }
+  it = 0;
+  for (const element of humid) {
+    element.innerHTML = `Humidity: ${weatherInformation.humidity[it]}%`;
+    it++;
+  }
 
-startQuiz();
+  it = 0;
+  for (const element of currDay) {
+    element.innerHTML = `${weatherInformation.date[it]}`;
+    it++;
+  }
+  it = 0;
+  for (const element of imageURL) {
+    element.src = `https://openweathermap.org/img/wn/${weatherInformation.imageURL[it]}@2x.png`;
+    it++;
+  }
+
+  reset(weatherInformation);
+};
+
+const getApiData = () => {
+  let city = document.getElementById("city").value;
+  let url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${query_params.api_key}&units=${query_params.unit}`;
+  fetch(url)
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      weatherInformation.location = data.city.name;
+      for (let i = 0; i < data.list.length; i++) {
+        if ((i + 1) % 7 == 0) {
+          const date = new Date(data.list[i].dt_txt);
+          const weekday = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          let day = weekday[date.getDay()];
+          weatherInformation.weatherCondition.push(
+            data.list[i].weather[0].main
+          );
+          weatherInformation.temperature.push(data.list[i].main.temp);
+          weatherInformation.windSpeed.push(data.list[i].wind.speed);
+          weatherInformation.precipitation.push(data.list[i].pop);
+          weatherInformation.humidity.push(data.list[i].main.humidity);
+          weatherInformation.date.push(day);
+          weatherInformation.imageURL.push(data.list[i].weather[0].icon);
+        }
+      }
+      displayWeather(weatherInformation);
+    });
+  document.getElementById("weatherData").style.display = "inline";
+};
+
+document.getElementById("search").addEventListener("click", getApiData);
